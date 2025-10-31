@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
 import prisma from '@/lib/db'
-import { authOptions } from '@/lib/auth'
+import { authConfig } from '@/lib/auth'
 import { z } from 'zod'
 import { Prisma } from '@prisma/client'
 
@@ -18,12 +18,13 @@ const ReviewSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const reviews = await prisma.review.findMany({
       where: {
-        bookId: params.id
+        bookId: id
       },
       include: {
         user: {
@@ -54,11 +55,13 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+  const session = await getServerSession(authConfig)
+      const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined;
+      if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -72,8 +75,8 @@ export async function POST(
       data: {
         content: validatedData.content,
         rating: validatedData.rating,
-        bookId: params.id,
-        userId: session.user.id
+        bookId: id,
+  userId: userId
       },
       include: {
         user: {
@@ -95,7 +98,7 @@ export async function POST(
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+  { error: error.issues[0].message },
         { status: 400 }
       )
     }

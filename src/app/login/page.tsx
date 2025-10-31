@@ -29,11 +29,11 @@ function LoginForm() {
     // Validate using Zod schema
     const result = LoginSchema.safeParse({ email, password })
     if (!result.success) {
-      const errors = result.error.errors.reduce((acc, curr) => {
-        acc[curr.path[0] as 'email' | 'password'] = curr.message
-        return acc
-      }, {} as { email?: string; password?: string })
-      
+      const errors: { email?: string; password?: string } = {};
+      for (const issue of result.error.issues) {
+        if (issue.path[0] === 'email') errors.email = issue.message;
+        if (issue.path[0] === 'password') errors.password = issue.message;
+      }
       setFieldErrors(errors)
       setLoading(false)
       return
@@ -50,8 +50,8 @@ function LoginForm() {
         throw new Error(res.error)
       }
 
-      const callbackUrl = searchParams.get('callbackUrl') || '/books'
-      router.push(callbackUrl)
+  const callbackUrl = searchParams.get('callbackUrl') || '/books'
+  router.push(callbackUrl as Parameters<typeof router.push>[0])
       router.refresh()
     } catch (error: unknown) {
       if (error instanceof Error) {

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+// Modern Playwright config for v1.56+
 
 /**
  * Read environment variables from file.
@@ -13,30 +14,30 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
-  testMatch: ['**/e2e/*.spec.ts', '**/visual/*.spec.ts', '**/api/*.spec.ts'],
-  /* Run tests in files in parallel */
+  testMatch: [
+    '**/e2e/*.spec.ts',
+    '**/visual/*.spec.ts',
+    '**/api/*.spec.ts'
+  ],
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [['html', { open: 'never' }], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
-    // Capture screenshot on failure
     screenshot: 'only-on-failure',
-    headless: false,
+    video: 'retain-on-failure',
+    headless: true,
     launchOptions: {
-      slowMo: 100,
+      slowMo: process.env.PW_SLOWMO ? Number(process.env.PW_SLOWMO) : 0,
     },
+    viewport: { width: 1280, height: 800 },
+    actionTimeout: 10000,
+    navigationTimeout: 30000,
+    ignoreHTTPSErrors: true,
   },
 
   /* Configure projects for major browsers */
@@ -45,17 +46,22 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
-
-    /* Test against mobile viewports. */
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'API',
+      use: {
+        baseURL: process.env.API_URL || 'http://localhost:3000/api',
+      },
+      testMatch: '**/api/*.spec.ts',
+    },
+    // Mobile and branded browsers can be enabled as needed
     // {
     //   name: 'Mobile Chrome',
     //   use: { ...devices['Pixel 5'] },
@@ -64,8 +70,6 @@ export default defineConfig({
     //   name: 'Mobile Safari',
     //   use: { ...devices['iPhone 12'] },
     // },
-
-    /* Test against branded browsers. */
     // {
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
@@ -81,13 +85,15 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+    port: 3000,
   },
 
   expect: {
     toHaveScreenshot: {
-      // Snapshot settings
       maxDiffPixels: 100,
       threshold: 0.2,
-    }
+    },
+    timeout: 10000,
   },
 });

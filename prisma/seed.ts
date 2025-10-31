@@ -1,14 +1,14 @@
-const { PrismaClient } = require('@prisma/client')
-const bcrypt = require('bcrypt')
+import { PrismaClient } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // Clean the database
-  await prisma.review.deleteMany()
-  await prisma.book.deleteMany()
-  await prisma.profile.deleteMany()
-  await prisma.user.deleteMany()
+  // Clean the database, ignore errors if tables do not exist
+  try { await prisma.review.deleteMany() } catch {}
+  try { await prisma.book.deleteMany() } catch {}
+  try { await prisma.profile.deleteMany() } catch {}
+  try { await prisma.user.deleteMany() } catch {}
 
   // Create users with profiles
   const hashedPassword = await bcrypt.hash('password123', 10)
@@ -47,7 +47,7 @@ async function main() {
   })
 
   // Create books with reviews
-  const cleanCode = await prisma.book.create({
+  await prisma.book.create({
     data: {
       title: 'Testing Code',
       description: "A Handbook of Agile Software Craftsmanship by Robert C. Martin. Even bad code can function. But if code isn't clean, it can bring a development organization to its knees.",
@@ -64,7 +64,7 @@ async function main() {
     }
   })
 
-  const pragmaticProgrammer = await prisma.book.create({
+  await prisma.book.create({
     data: {
       title: 'The Pragmatic Tester',
       description: 'From Journeyman to Master by Andrew Hunt and David Thomas. Written as a series of self-contained sections and filled with classic and fresh anecdotes, thoughtful examples, and interesting analogies.',
@@ -81,7 +81,7 @@ async function main() {
     }
   })
 
-  const refactoring = await prisma.book.create({
+  await prisma.book.create({
     data: {
       title: 'Test',
       description: "Improving the Design of Existing Code by Martin Fowler. For more than twenty years, experienced programmers worldwide have relied on Martin Fowler's Refactoring to improve the design of existing code and to enhance software maintainability.",
@@ -108,4 +108,4 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
-  }) 
+  })

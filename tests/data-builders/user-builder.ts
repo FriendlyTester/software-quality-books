@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { User } from '@prisma/client'
 import { TestDataBuilder } from './base-builder'
 import prisma from '../../src/lib/db'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 // Define required fields that must be present for every user
 export type TestUser = {

@@ -51,7 +51,7 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
         isEditing ? 'Book updated successfully!' : 'Book added successfully!',
         'success'
       )
-      router.push(returnUrl)
+  router.push(returnUrl as Parameters<typeof router.push>[0])
       router.refresh()
     } catch (error) {
       showNotification(
@@ -68,9 +68,11 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
       onSubmit={handleSubmit}
       noValidate
       className="space-y-4"
+      aria-label={isEditing ? 'Edit Book Form' : 'Add Book Form'}
+      role="form"
     >
       <div>
-        <label htmlFor="title" className="block text-sm font-medium">
+        <label htmlFor="title" className="block text-sm font-medium" id="title-label">
           Title
         </label>
         <input
@@ -80,11 +82,13 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
           required
           defaultValue={initialData?.title}
           className="w-full px-3 py-2 border rounded-lg"
+          aria-labelledby="title-label"
+          aria-required="true"
         />
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium">
+        <label htmlFor="description" className="block text-sm font-medium" id="description-label">
           Description
         </label>
         <textarea
@@ -94,6 +98,8 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
           rows={5}
           defaultValue={initialData?.description}
           className="w-full px-3 py-2 border rounded-lg"
+          aria-labelledby="description-label"
+          aria-required="true"
         />
       </div>
 
@@ -101,6 +107,8 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
         type="submit"
         disabled={loading}
         className="w-full px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-blue-300"
+        aria-busy={loading}
+        aria-label={loading ? 'Saving book' : isEditing ? 'Update Book' : 'Add Book'}
       >
         {loading ? 'Saving...' : isEditing ? 'Update Book' : 'Add Book'}
       </button>

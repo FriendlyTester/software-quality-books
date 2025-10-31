@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import ClientRoot from './ClientRoot';
 import Navigation from '@/components/Navigation'
 import SessionProvider from '@/components/SessionProvider'
 import Notification from '@/components/Notification'
@@ -20,13 +21,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SessionProvider>
-          <Navigation />
-          <Notification />
-          <main className="container mx-auto px-4 py-8">
-            {children}
-          </main>
-        </SessionProvider>
+        {/* Move client-only providers/components into ClientRoot */}
+        <ClientRoot>{children}</ClientRoot>
       </body>
     </html>
   );

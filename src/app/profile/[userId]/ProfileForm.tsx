@@ -58,11 +58,12 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
     } catch (error) {
       if (error instanceof ZodError) {
         const errors: FieldErrors = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            errors[err.path[0] as keyof ProfileFormData] = err.message;
+        for (const issue of error.issues) {
+          const fieldKey = issue.path[0];
+          if (fieldKey) {
+            errors[fieldKey as keyof ProfileFormData] = issue.message;
           }
-        });
+        }
         setFieldErrors(errors);
       } else {
         console.error('Profile update error:', error);

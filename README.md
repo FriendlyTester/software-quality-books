@@ -12,10 +12,13 @@ Before you begin, ensure you have the following installed:
 
 ## Getting Started
 
-1. Clone the repository:
+## Prerequisites
 
-```bash
-git clone https://github.com/FriendlyTester/software-quality-books
+Before you begin, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v20.x recommended)
+- [npm](https://www.npmjs.com/) (comes with Node.js)
+- [Git](https://git-scm.com/)
+- A code editor (we recommend [VS Code](https://code.visualstudio.com/))
 cd software-quality-books
 ```
 
@@ -26,6 +29,8 @@ npm install
 
 3. Set up your environment variables:
    - Copy `.env.example` to `.env`:
+3. Set up your environment variables:
+   - Copy `.env.development` to `.env`:
    ```bash
    cp .env.development .env
    ```
@@ -33,14 +38,28 @@ npm install
      - `DATABASE_URL`: Your database connection string
      - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
      - `NEXTAUTH_URL`: `http://localhost:3000` for local development
-
+   ```bash
+   cp .env.development .env
+   ```
+   - Update the following variables in `.env`:
+     - `DATABASE_URL`: Your database connection string
+     - `NEXTAUTH_SECRET`: Generate with `openssl rand -base64 32`
 4. Set up the database:
 ```bash
-npx prisma db push
+npx prisma migrate dev
 npx prisma generate
 ```
+     - `NEXTAUTH_URL`: `http://localhost:3000` for local development
 
-5. Seed the database with initial data:
+## Technology Stack
+
+- [Next.js 15](https://nextjs.org/)
+- [React 19](https://react.dev/)
+- [TypeScript 5](https://www.typescriptlang.org/)
+- [Prisma](https://www.prisma.io/)
+- [Auth.js v5](https://authjs.dev/)
+- [Tailwind CSS 4](https://tailwindcss.com/)
+- [Playwright](https://playwright.dev/)
 ```bash
 npm run seed
 ```
@@ -49,8 +68,20 @@ npm run seed
 ```bash
 npm run dev
 ```
+### Database Issues
+If you encounter database-related errors:
+```bash
+# Reset the database and apply all migrations
+npx prisma migrate reset
+npm run seed
+```
 
-7. Open [http://localhost:3000](http://localhost:3000) in your browser
+You can also run Prisma Studio to view the database:
+```bash
+npx prisma studio
+```
+
+ User authentication with Auth.js v5
 
 ## Test Users
 

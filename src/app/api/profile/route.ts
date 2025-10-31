@@ -1,5 +1,5 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+import { authConfig } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { ProfileSchema } from "@/lib/validations/profile";
@@ -7,7 +7,8 @@ import { ZodError } from "zod";
 
 export async function PATCH(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+      const session = await getServerSession(authConfig);
+      const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined;
     if (!session?.user) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -21,7 +22,7 @@ export async function PATCH(req: Request) {
       if (error instanceof ZodError) {
         return new NextResponse(JSON.stringify({ 
           error: "Validation failed", 
-          details: error.errors 
+          details: error.issues 
         }), { 
           status: 400,
           headers: { 'Content-Type': 'application/json' }
@@ -43,7 +44,7 @@ export async function PATCH(req: Request) {
     } = body;
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
+  where: { id: userId },
       data: {
         email,
         profile: {

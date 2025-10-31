@@ -1,20 +1,22 @@
 import React from "react";
 import prisma from "@/lib/db";
 import { notFound } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+import { authConfig } from "@/lib/auth";
 import ProfileForm from "./ProfileForm";
 
 export default async function ProfilePage({
   params,
 }: {
-  params: { userId: string };
+  params: Promise<{ userId: string }>;
 }) {
-  const session = await getServerSession(authOptions);
-  const isOwnProfile = session?.user?.id === params.userId;
+  const { userId: profileUserId } = await params
+  const session = await getServerSession(authConfig);
+    const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined;
+    const isOwnProfile = userId === profileUserId;
 
   const profile = await prisma.profile.findFirst({
-    where: { userId: params.userId },
+    where: { userId: profileUserId },
     include: { user: true },
   });
 

@@ -19,7 +19,7 @@ export default function Navigation() {
           <div className="flex items-center gap-4">
             {status === 'loading' ? (
               <div>Loading...</div>
-            ) : session ? (
+            ) : session && session.user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -34,7 +34,7 @@ export default function Navigation() {
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg py-1 z-10">
                     <Link
-                      href={`/profile/${session.user.id}`}
+                      href={`/profile/${(session.user as { id?: string }).id ?? ''}`}
                       className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
                       onClick={() => setIsDropdownOpen(false)}
                     >

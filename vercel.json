@@ -1,0 +1,18 @@
+{
+  "buildCommand": "./scripts/build.sh",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "functions": {
+    "api/**": {
+      "memory": 1024,
+      "maxDuration": 30
+    }
+  },
+  "experimental": {
+    "serverActions": false,
+    "turbopack": true
+  }
+}
