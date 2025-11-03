@@ -10,9 +10,5 @@
       "memory": 1024,
       "maxDuration": 30
     }
-  },
-  "experimental": {
-    "serverActions": false,
-    "turbopack": true
   }
 }
