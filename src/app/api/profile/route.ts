@@ -1,9 +1,11 @@
 import { getServerSession } from "next-auth/next";
-import { authConfig } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
+
+import { authConfig } from "@/lib/auth";
 import prisma from "@/lib/db";
 import { ProfileSchema } from "@/lib/validations/profile";
-import { ZodError } from "zod";
+
 
 export async function PATCH(req: Request) {
   try {

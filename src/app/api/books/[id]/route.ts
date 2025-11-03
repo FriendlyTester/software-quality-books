@@ -1,10 +1,11 @@
 // app/api/books/[id]/route.ts
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
+import { ZodError } from 'zod'
+
 import prisma from '@/lib/db'
 import { authConfig } from '@/lib/auth'
 import { BookSchema } from '@/lib/validations/book'
-import { ZodError } from 'zod'
 
 export async function GET(
   request: Request,
@@ -25,6 +26,7 @@ export async function GET(
 
     return NextResponse.json(book)
   } catch (error) {
+    console.error('Failed to fetch book', error)
     return NextResponse.json(
       { error: 'Failed to fetch book' },
       { status: 500 }
@@ -88,6 +90,7 @@ export async function PUT(
       )
     }
 
+    console.error('Failed to update book', error)
     return NextResponse.json(
       { error: 'Failed to update book' },
       { status: 500 }
@@ -135,6 +138,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: 'Book deleted successfully' })
   } catch (error) {
+    console.error('Failed to delete book', error)
     return NextResponse.json(
       { error: 'Failed to delete book' },
       { status: 500 }

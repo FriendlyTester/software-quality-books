@@ -1,9 +1,11 @@
 import React from "react";
-import prisma from "@/lib/db";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth/next";
-import { authConfig } from "@/lib/auth";
+
 import ProfileForm from "./ProfileForm";
+
+import { authConfig } from "@/lib/auth";
+import prisma from "@/lib/db";
 
 export default async function ProfilePage({
   params,
@@ -48,54 +50,40 @@ export default async function ProfilePage({
             
             <div>
               <h2 className="text-xl font-semibold">{profile.name || 'No name set'}</h2>
-              {isOwnProfile && (
-                <p className="text-gray-600">{profile.user.email}</p>
-              )}
+              {isOwnProfile ? <p className="text-gray-600">{profile.user.email}</p> : null}
             </div>
           </div>
 
           {/* Bio Section */}
-          {profile.bio && (
-            <div className="mb-6">
+          {profile.bio ? <div className="mb-6">
               <h3 className="text-lg font-semibold mb-2">About</h3>
               <p className="text-gray-700 whitespace-pre-wrap">{profile.bio}</p>
-            </div>
-          )}
+            </div> : null}
 
           {/* Social Links */}
           <div className="flex flex-wrap gap-4 mb-6">
-            {profile.bluesky && (
-              <a href={profile.bluesky} target="_blank" rel="noopener noreferrer" 
+            {profile.bluesky ? <a href={profile.bluesky} target="_blank" rel="noopener noreferrer" 
                 className="flex items-center gap-2 text-blue-500 hover:underline">
                 <span>Bluesky</span>
-              </a>
-            )}
-            {profile.linkedin && (
-              <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" 
+              </a> : null}
+            {profile.linkedin ? <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" 
                 className="flex items-center gap-2 text-blue-500 hover:underline">
                 <span>LinkedIn</span>
-              </a>
-            )}
-            {profile.github && (
-              <a href={profile.github} target="_blank" rel="noopener noreferrer" 
+              </a> : null}
+            {profile.github ? <a href={profile.github} target="_blank" rel="noopener noreferrer" 
                 className="flex items-center gap-2 text-blue-500 hover:underline">
                 <span>GitHub</span>
-              </a>
-            )}
-            {profile.website && (
-              <a href={profile.website} target="_blank" rel="noopener noreferrer" 
+              </a> : null}
+            {profile.website ? <a href={profile.website} target="_blank" rel="noopener noreferrer" 
                 className="flex items-center gap-2 text-blue-500 hover:underline">
                 <span>Website</span>
-              </a>
-            )}
+              </a> : null}
           </div>
 
           {/* Edit Button */}
-          {isOwnProfile && (
-            <div className="mt-6">
+          {isOwnProfile ? <div className="mt-6">
               <ProfileForm profile={profile} />
-            </div>
-          )}
+            </div> : null}
         </div>
       </div>
     </div>

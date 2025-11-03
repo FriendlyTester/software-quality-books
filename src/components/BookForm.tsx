@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+
 import { BookSchema } from '@/lib/validations/book'
 import { useNotificationStore } from '@/lib/store/notification'
 
@@ -66,7 +67,7 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
   return (
     <form 
       onSubmit={handleSubmit}
-      noValidate
+      noValidate={true}
       className="space-y-4"
       aria-label={isEditing ? 'Edit Book Form' : 'Add Book Form'}
       role="form"
@@ -79,7 +80,7 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
           type="text"
           id="title"
           name="title"
-          required
+          required={true}
           defaultValue={initialData?.title}
           className="w-full px-3 py-2 border rounded-lg"
           aria-labelledby="title-label"
@@ -94,7 +95,7 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
         <textarea
           id="description"
           name="description"
-          required
+          required={true}
           rows={5}
           defaultValue={initialData?.description}
           className="w-full px-3 py-2 border rounded-lg"

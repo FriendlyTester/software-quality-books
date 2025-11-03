@@ -1,10 +1,11 @@
 // app/books/[id]/page.tsx
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Book } from '@/types/book'
 import { useSession } from 'next-auth/react'
+
+import { Book } from '@/types/book'
 import ReviewForm from '@/components/ReviewForm'
 import DeleteBookButton from '@/components/DeleteBookButton'
 
@@ -41,7 +42,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
   // Helper to get user id safely
   const getUserId = () => (session?.user && (session.user as { id?: string }).id) ?? undefined
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [bookRes, reviewsRes] = await Promise.all([
         fetch(`/api/books/${id}`),
@@ -71,7 +72,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
         error: errorMessage 
       }))
     }
-  }
+  }, [id])
 
   const hasUserReviewed = state.reviews.some(review => 
   review.user?.id === getUserId()
@@ -79,7 +80,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
 
   useEffect(() => {
     fetchData()
-  }, [id])
+  }, [fetchData])
 
   if (state.isLoading) {
     return (
@@ -120,8 +121,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
           >
             ← Back to Books
           </Link>
-          {isOwner && (
-            <div className="space-x-2">
+          {isOwner ? <div className="space-x-2">
               <Link
                 href={`/books/${id}/edit`}
                 className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
@@ -129,8 +129,7 @@ export default function BookPage({ params }: { params: Promise<{ id: string }> }
                 Edit
               </Link>
               <DeleteBookButton bookId={id} />
-            </div>
-          )}
+            </div> : null}
         </div>
 
         <div className="bg-white shadow-lg rounded-lg p-6 mb-8">

@@ -1,7 +1,9 @@
 import { PactV3, MatchersV3 } from '@pact-foundation/pact'
-import { Book } from '@/types/book'
-import config from '../../pact.config'
 import fetch from 'node-fetch';
+
+import config from '../../pact.config'
+
+import { Book } from '@/types/book'
 
 const { like } = MatchersV3
 

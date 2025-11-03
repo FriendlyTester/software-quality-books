@@ -1,7 +1,7 @@
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server'
 
-export default function proxy(request: NextRequest) {
+export default function proxy(_request: NextRequest) {
 	// Allow all requests through. Add custom logic if needed.
-	return NextResponse.next();
+	return NextResponse.next()
 }

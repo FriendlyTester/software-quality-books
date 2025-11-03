@@ -1,4 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test'
+import { Page, Locator } from '@playwright/test'
+
 import { generateTestId, TEST_DATA_IDS } from '@/utils/idHelpers'
 
 export class BooksPage {

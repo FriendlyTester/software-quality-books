@@ -1,5 +1,6 @@
-import { BooksPage } from '../page-objects/books-page'
 import { test as base } from '@playwright/test'
+
+import { BooksPage } from '../page-objects/books-page'
 import { BookBuilder } from '../data-builders/book-builder'
 
 export type TestFixtures = {

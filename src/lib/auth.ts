@@ -1,7 +1,8 @@
 import type { JWT } from "next-auth/jwt"
 import NextAuth from "next-auth/next"
-import CredentialsProvider from "@/lib/credentialsProvider"
 import { PrismaAdapter } from "@auth/prisma-adapter"
+
+import CredentialsProvider from "@/lib/credentialsProvider"
 import prisma from "@/lib/db"
 
 type NextAuthConfig = Parameters<typeof NextAuth>[2]

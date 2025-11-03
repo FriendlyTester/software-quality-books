@@ -1,10 +1,11 @@
 // app/api/books/route.ts
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
+import { ZodError } from 'zod'
+
 import prisma from '@/lib/db'
 import { authConfig } from '@/lib/auth'
 import { BookSchema } from '@/lib/validations/book'
-import { ZodError } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,7 @@ export async function GET() {
     })
     return NextResponse.json(books)
   } catch (error) {
+    console.error('Failed to fetch books', error)
     return NextResponse.json(
       { error: 'Failed to fetch books' },
       { status: 500 }
@@ -54,6 +56,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+    console.error('Failed to create book', error)
     return NextResponse.json(
       { error: 'Failed to create book' },
       { status: 500 }

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
-import prisma from '@/lib/db'
-import { authConfig } from '@/lib/auth'
 import { z } from 'zod'
 import { Prisma } from '@prisma/client'
+
+import prisma from '@/lib/db'
+import { authConfig } from '@/lib/auth'
 
 // Create a validation schema for reviews
 const ReviewSchema = z.object({
@@ -68,6 +69,16 @@ export async function POST(
       )
     }
 
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    const book = await prisma.book.findUnique({ where: { id } })
+
+    if (!user || !book) {
+      return NextResponse.json(
+        { error: 'Unable to submit review because the book or user was not found' },
+        { status: 404 }
+      )
+    }
+
     const body = await request.json()
     const validatedData = ReviewSchema.parse(body)
 
@@ -103,11 +114,22 @@ export async function POST(
       )
     }
 
-    // Handle Prisma unique constraint violation
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('Prisma error details:', {
+        code: error.code,
+        meta: error.meta
+      })
+
       if (error.code === 'P2002') {
         return NextResponse.json(
           { error: 'You have already reviewed this book' },
+          { status: 400 }
+        )
+      }
+
+      if (error.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Unable to submit review because the book or user no longer exists' },
           { status: 400 }
         )
       }

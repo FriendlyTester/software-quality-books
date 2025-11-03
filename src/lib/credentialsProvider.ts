@@ -1,5 +1,6 @@
 import Credentials from 'next-auth/providers/credentials'
 import * as bcrypt from 'bcryptjs'
+
 import prisma from '@/lib/db'
 
 const CredentialsProvider = Credentials({

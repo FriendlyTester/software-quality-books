@@ -1,8 +1,10 @@
-import { test } from '../fixtures/bookpage-fixture'
 import { expect } from '@playwright/test'
+import { Book } from '@prisma/client'
+
+import { test } from '../fixtures/bookpage-fixture'
 import { UserBuilder } from '../data-builders/user-builder'
 import { BookBuilder } from '../data-builders/book-builder'
-import { Book } from '@prisma/client'
+
 
 test.describe('Book page data', () => {
   // Configure tests to run serially
