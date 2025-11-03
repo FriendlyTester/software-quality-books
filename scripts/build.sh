@@ -8,8 +8,9 @@ if [ "$VERCEL_ENV" = "production" ]; then
   # Copy production schema
   cp prisma/schema.production.prisma prisma/schema.prisma
 
-  # Run Prisma migrations and generate client
-  npx prisma migrate deploy
+  # Sync database schema for Postgres and generate client
+  npx prisma db push
+  npx prisma generate
 
   # Build Next.js
   next build
