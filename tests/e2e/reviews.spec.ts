@@ -1,8 +1,10 @@
-import { test } from '../fixtures/review-fixture'
 import { expect } from '@playwright/test'
+import { Book } from '@prisma/client'
+
+import { test } from '../fixtures/review-fixture'
 import { UserBuilder } from '../data-builders/user-builder'
 import { BookBuilder } from '../data-builders/book-builder'
-import { Book } from '@prisma/client'
+
 
 test.describe('Book Reviews', () => {
   test.describe.configure({ mode: 'serial' })
@@ -70,6 +72,7 @@ test.describe('Book Reviews', () => {
     
     // Submit a review
     await reviewPage.submitReview('Test review content', 4)
+    await reviewPage.page.waitForLoadState('networkidle')
     
     // Verify review form is hidden
     await expect(reviewPage.reviewForm).not.toBeVisible()
@@ -85,9 +88,10 @@ test.describe('Book Reviews', () => {
     
     // Submit initial review
     await reviewPage.submitReview('Test review content', 4)
-    
-    // Reload page
-    await reviewPage.goto(testBook.id)
+    await reviewPage.page.waitForLoadState('networkidle')
+
+    // Reload page to simulate revisiting later
+    await reviewPage.page.reload({ waitUntil: 'networkidle' })
     
     // Verify review form is still hidden
     await expect(reviewPage.reviewForm).not.toBeVisible()

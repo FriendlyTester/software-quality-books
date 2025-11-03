@@ -1,5 +1,6 @@
-import { test } from '../fixtures/new-book-fixture'
 import { expect } from '@playwright/test'
+
+import { test } from '../fixtures/new-book-fixture'
 import { UserBuilder } from '../data-builders/user-builder'
 
 test.describe('New Book Validation', () => {

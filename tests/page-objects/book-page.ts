@@ -1,7 +1,11 @@
 import { Page } from '@playwright/test'
 
 export class BookPage {
-  constructor(private page: Page) {}
+  private readonly page: Page
+
+  constructor(page: Page) {
+    this.page = page
+  }
 
   async goto(bookId: string) {
     await this.page.goto(`/books/${bookId}`)

@@ -1,5 +1,4 @@
 import { Page, Locator } from '@playwright/test'
-import { generateTestId } from '@/utils/idHelpers'
 
 export class ReviewPage {
   readonly page: Page
@@ -25,7 +24,24 @@ export class ReviewPage {
     if (rating > 0) {
       await this.ratingSelect.selectOption(rating.toString())
     }
-    await this.submitButton.click()
+    const shouldExpectNetwork = content.trim().length > 0 && rating > 0
+
+    if (shouldExpectNetwork) {
+      const [reviewResponse] = await Promise.all([
+        this.page.waitForResponse(res =>
+          res.url().includes('/api/books/') &&
+          res.url().includes('/reviews') &&
+          res.request().method() === 'POST'
+        ),
+        this.submitButton.click()
+      ])
+
+      if (!reviewResponse.ok()) {
+        throw new Error(`Review submission failed with status ${reviewResponse.status()}`)
+      }
+    } else {
+      await this.submitButton.click()
+    }
   }
 
   getReviewCard(content: string): Locator {

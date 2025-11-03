@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+
 import { useNotificationStore } from '@/lib/store/notification'
 
 export default function Notification() {

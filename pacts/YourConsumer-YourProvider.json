@@ -4,6 +4,39 @@
   },
   "interactions": [
     {
+      "description": "a request for a non-existent book",
+      "providerStates": [
+        {
+          "name": "no book exists with ID"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/api/books/nonexistent-id"
+      },
+      "response": {
+        "body": {
+          "error": "Book not found"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            }
+          }
+        },
+        "status": 404
+      }
+    },
+    {
       "description": "a request for a specific book",
       "providerStates": [
         {
@@ -84,8 +117,7 @@
                 }
               ]
             }
-          },
-          "header": {}
+          }
         },
         "status": 200
       }
@@ -118,8 +150,7 @@
                 }
               ]
             }
-          },
-          "header": {}
+          }
         },
         "status": 404
       }
@@ -127,11 +158,11 @@
   ],
   "metadata": {
     "pact-js": {
-      "version": "11.0.2"
+      "version": "16.0.2"
     },
     "pactRust": {
-      "ffi": "0.4.0",
-      "models": "1.0.4"
+      "ffi": "0.4.28",
+      "models": "1.3.5"
     },
     "pactSpecification": {
       "version": "3.0.0"

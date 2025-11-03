@@ -1,32 +1,62 @@
-import { encode } from 'next-auth/jwt'
-import { UserBuilder } from '../data-builders/user-builder'
+// Removed deprecated next-auth/jwt encode import
 import { Page } from '@playwright/test'
 
-export class AuthHelper {
-  constructor(private page: Page) {}
+import { UserBuilder } from '../data-builders/user-builder'
 
-  async loginUser(user?: { id: string; email: string }) {
-    // Create test user if not provided
-    const testUser = user || await new UserBuilder().create()
-    
-    // Generate session token
-    const token = await encode({
-      token: {
+type BuiltUser = Awaited<ReturnType<UserBuilder['create']>>
+
+export class AuthHelper {
+  private readonly page: Page
+
+  constructor(page: Page) {
+    this.page = page
+  }
+
+  async loginUser(user?: BuiltUser) {
+    const testUser = user ?? await new UserBuilder().create()
+
+    // Start with a clean auth state to avoid leaking sessions between tests
+  await this.page.context().clearCookies()
+
+  const csrfResponse = await this.page.request.get('/api/auth/csrf')
+    if (!csrfResponse.ok()) {
+      throw new Error('Failed to retrieve CSRF token for login')
+    }
+
+  const { csrfToken } = (await csrfResponse.json()) as { csrfToken?: string }
+    if (!csrfToken) {
+      throw new Error('No CSRF token returned from auth endpoint')
+    }
+
+  const signInResponse = await this.page.request.post('/api/auth/callback/credentials', {
+      form: {
+        csrfToken,
         email: testUser.email,
-        id: testUser.id,
-        sub: testUser.id,
-      },
-      secret: process.env.NEXTAUTH_SECRET || 'test-secret',
+        password: testUser.password,
+        callbackUrl: '/'
+      }
     })
 
-    // Set the session cookie
-    await this.page.context().addCookies([{
-      name: 'next-auth.session-token',
-      value: token,
-      domain: 'localhost',
-      path: '/',
-    }])
+    if (signInResponse.status() >= 400) {
+      throw new Error(`Failed to sign in test user. Status: ${signInResponse.status()}`)
+    }
+
+  const sessionResponse = await this.page.request.get('/api/auth/session')
+    if (!sessionResponse.ok()) {
+      throw new Error('Failed to verify authenticated session')
+    }
+
+    const sessionData = await sessionResponse.json() as {
+      user?: { id?: string; email?: string | null }
+    }
+
+    if (sessionData.user?.email !== testUser.email) {
+      throw new Error('Authenticated session does not match test user')
+    }
+
+    // Ensure browser context picks up newly set cookies
+  await this.page.goto('/')
 
     return testUser
   }
-} 
+}

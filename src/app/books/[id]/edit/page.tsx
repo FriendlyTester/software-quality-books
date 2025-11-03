@@ -1,18 +1,22 @@
 import { notFound } from 'next/navigation'
+import { getServerSession } from 'next-auth/next'
+import { redirect } from 'next/navigation'
+
 import BookForm from '@/components/BookForm'
 import prisma from '@/lib/db'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { redirect } from 'next/navigation'
+import { authConfig } from '@/lib/auth'
+
 
 export default async function EditBookPage({
   params
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const session = await getServerSession(authOptions)
-  const book = await prisma.book.findUnique({
-    where: { id: params.id }
+  const { id } = await params
+  const session = await getServerSession(authConfig);
+    const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined;
+    const book = await prisma.book.findUnique({
+    where: { id }
   })
 
   if (!book) {
@@ -20,7 +24,7 @@ export default async function EditBookPage({
   }
 
   // Redirect if not the owner
-  if (book.userId !== session?.user?.id) {
+    if (book.userId !== userId) {
     redirect('/books')
   }
 
@@ -30,7 +34,7 @@ export default async function EditBookPage({
       <BookForm 
         initialData={book}
         isEditing={true}
-        returnUrl={`/books/${params.id}`}
+        returnUrl={`/books/${id}`}
       />
     </div>
   )

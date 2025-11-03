@@ -1,5 +1,6 @@
-import { test } from '../fixtures/homepage-fixture'
 import { expect } from '@playwright/test'
+
+import { test } from '../fixtures/homepage-fixture'
 import { UserBuilder } from '../data-builders/user-builder'
 import { AuthHelper } from '../helpers/auth.helper'
 

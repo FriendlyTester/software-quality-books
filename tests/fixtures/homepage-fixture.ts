@@ -1,5 +1,6 @@
-import { HomePage } from '../page-objects/home-page'
 import { test as base } from '@playwright/test'
+
+import { HomePage } from '../page-objects/home-page'
 
 export type TestFixtures = {
   homePage: HomePage

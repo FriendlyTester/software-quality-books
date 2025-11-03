@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ZodError } from "zod";
+
 import { Profile } from "@/types/profile";
 import { ProfileSchema, type ProfileFormData } from "@/lib/validations/profile";
-import { ZodError } from "zod";
 
 type FieldErrors = Partial<Record<keyof ProfileFormData, string>>;
 
@@ -58,11 +59,12 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
     } catch (error) {
       if (error instanceof ZodError) {
         const errors: FieldErrors = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            errors[err.path[0] as keyof ProfileFormData] = err.message;
+        for (const issue of error.issues) {
+          const fieldKey = issue.path[0];
+          if (fieldKey) {
+            errors[fieldKey as keyof ProfileFormData] = issue.message;
           }
-        });
+        }
         setFieldErrors(errors);
       } else {
         console.error('Profile update error:', error);
@@ -74,11 +76,9 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
   return (
     <div>
-      {successMessage && (
-        <div className="mb-4 p-4 bg-green-50 text-green-600 rounded-md">
+      {successMessage ? <div className="mb-4 p-4 bg-green-50 text-green-600 rounded-md">
           {successMessage}
-        </div>
-      )}
+        </div> : null}
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -92,9 +92,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.name || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.name && (
-            <p className="text-sm text-red-500">{fieldErrors.name}</p>
-          )}
+          {fieldErrors.name ? <p className="text-sm text-red-500">{fieldErrors.name}</p> : null}
         </div>
 
         <div>
@@ -108,9 +106,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.dateOfBirth && (
-            <p className="text-sm text-red-500">{fieldErrors.dateOfBirth}</p>
-          )}
+          {fieldErrors.dateOfBirth ? <p className="text-sm text-red-500">{fieldErrors.dateOfBirth}</p> : null}
         </div>
 
         <div>
@@ -124,9 +120,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.image || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.image && (
-            <p className="text-sm text-red-500">{fieldErrors.image}</p>
-          )}
+          {fieldErrors.image ? <p className="text-sm text-red-500">{fieldErrors.image}</p> : null}
         </div>
 
         <div>
@@ -140,9 +134,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.bio || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.bio && (
-            <p className="text-sm text-red-500">{fieldErrors.bio}</p>
-          )}
+          {fieldErrors.bio ? <p className="text-sm text-red-500">{fieldErrors.bio}</p> : null}
         </div>
 
         <div>
@@ -156,9 +148,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.bluesky || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.bluesky && (
-            <p className="text-sm text-red-500">{fieldErrors.bluesky}</p>
-          )}
+          {fieldErrors.bluesky ? <p className="text-sm text-red-500">{fieldErrors.bluesky}</p> : null}
         </div>
 
         <div>
@@ -172,9 +162,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.linkedin || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.linkedin && (
-            <p className="text-sm text-red-500">{fieldErrors.linkedin}</p>
-          )}
+          {fieldErrors.linkedin ? <p className="text-sm text-red-500">{fieldErrors.linkedin}</p> : null}
         </div>
 
         <div>
@@ -188,9 +176,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.github || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.github && (
-            <p className="text-sm text-red-500">{fieldErrors.github}</p>
-          )}
+          {fieldErrors.github ? <p className="text-sm text-red-500">{fieldErrors.github}</p> : null}
         </div>
 
         <div>
@@ -204,9 +190,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
             defaultValue={profile.website || ''}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
           />
-          {fieldErrors.website && (
-            <p className="text-sm text-red-500">{fieldErrors.website}</p>
-          )}
+          {fieldErrors.website ? <p className="text-sm text-red-500">{fieldErrors.website}</p> : null}
         </div>
 
         <button

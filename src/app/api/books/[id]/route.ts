@@ -1,18 +1,20 @@
 // app/api/books/[id]/route.ts
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import prisma from '@/lib/db'
-import { authOptions } from '@/lib/auth'
-import { BookSchema } from '@/lib/validations/book'
+import { getServerSession } from 'next-auth/next'
 import { ZodError } from 'zod'
+
+import prisma from '@/lib/db'
+import { authConfig } from '@/lib/auth'
+import { BookSchema } from '@/lib/validations/book'
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const book = await prisma.book.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!book) {
@@ -24,6 +26,7 @@ export async function GET(
 
     return NextResponse.json(book)
   } catch (error) {
+    console.error('Failed to fetch book', error)
     return NextResponse.json(
       { error: 'Failed to fetch book' },
       { status: 500 }
@@ -33,11 +36,13 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions)
+  const { id } = await params
+  const session = await getServerSession(authConfig)
 
-  if (!session) {
+  const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined
+  if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
@@ -46,7 +51,7 @@ export async function PUT(
 
   try {
     const book = await prisma.book.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!book) {
@@ -56,7 +61,7 @@ export async function PUT(
       )
     }
 
-    if (book.userId !== session.user.id) {
+  if (book.userId !== userId) {
       return NextResponse.json(
         { error: 'Not authorized to edit this book' },
         { status: 403 }
@@ -69,7 +74,7 @@ export async function PUT(
     const validatedData = BookSchema.parse(body)
 
     const updatedBook = await prisma.book.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: validatedData.title,
         description: validatedData.description
@@ -80,11 +85,12 @@ export async function PUT(
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+  { error: error.issues[0].message },
         { status: 400 }
       )
     }
 
+    console.error('Failed to update book', error)
     return NextResponse.json(
       { error: 'Failed to update book' },
       { status: 500 }
@@ -94,11 +100,13 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions)
+  const { id } = await params
+  const session = await getServerSession(authConfig)
 
-  if (!session) {
+  const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined
+  if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },
       { status: 401 }
@@ -107,7 +115,7 @@ export async function DELETE(
 
   try {
     const book = await prisma.book.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!book) {
@@ -117,7 +125,7 @@ export async function DELETE(
       )
     }
 
-    if (book.userId !== session.user.id) {
+    if (book.userId !== userId) {
       return NextResponse.json(
         { error: 'Not authorized to delete this book' },
         { status: 403 }
@@ -125,11 +133,12 @@ export async function DELETE(
     }
 
     await prisma.book.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Book deleted successfully' })
   } catch (error) {
+    console.error('Failed to delete book', error)
     return NextResponse.json(
       { error: 'Failed to delete book' },
       { status: 500 }

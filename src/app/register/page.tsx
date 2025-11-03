@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ZodError } from 'zod'
+
 import { useNotificationStore } from '@/lib/store/notification'
 import { RegisterSchema, type RegisterFormData } from '@/lib/validations/auth'
-import { ZodError } from 'zod'
 
 type FieldErrors = Partial<Record<keyof RegisterFormData, string>>
 
@@ -46,11 +47,12 @@ export default function RegisterPage() {
     } catch (error) {
       if (error instanceof ZodError) {
         const errors: FieldErrors = {}
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            errors[err.path[0] as keyof RegisterFormData] = err.message
+        for (const issue of error.issues) {
+          const fieldKey = issue.path[0]
+          if (fieldKey) {
+            errors[fieldKey as keyof RegisterFormData] = issue.message
           }
-        })
+        }
         setFieldErrors(errors)
       } else {
         showNotification(
@@ -75,7 +77,7 @@ export default function RegisterPage() {
         <form 
           className="mt-8 space-y-6" 
           onSubmit={handleSubmit} 
-          noValidate
+          noValidate={true}
         >
           <div className="rounded-md shadow-sm space-y-4">
             <div>
@@ -88,9 +90,7 @@ export default function RegisterPage() {
                 type="text"
                 className="w-full px-3 py-2 border rounded-lg"
               />
-              {fieldErrors.name && (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.name}</p>
-              )}
+              {fieldErrors.name ? <p className="mt-1 text-sm text-red-500">{fieldErrors.name}</p> : null}
             </div>
 
             <div>
@@ -103,9 +103,7 @@ export default function RegisterPage() {
                 type="email"
                 className="w-full px-3 py-2 border rounded-lg"
               />
-              {fieldErrors.email && (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p>
-              )}
+              {fieldErrors.email ? <p className="mt-1 text-sm text-red-500">{fieldErrors.email}</p> : null}
             </div>
 
             <div>
@@ -118,9 +116,7 @@ export default function RegisterPage() {
                 type="password"
                 className="w-full px-3 py-2 border rounded-lg"
               />
-              {fieldErrors.password && (
-                <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p>
-              )}
+              {fieldErrors.password ? <p className="mt-1 text-sm text-red-500">{fieldErrors.password}</p> : null}
             </div>
           </div>
 

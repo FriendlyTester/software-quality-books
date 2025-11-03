@@ -1,8 +1,13 @@
 import { APIRequestContext } from '@playwright/test';
+
 import { UserBuilder } from '../data-builders/user-builder';
 
 export class ApiHelper {
-  constructor(public request: APIRequestContext) {}
+  private readonly request: APIRequestContext
+
+  constructor(request: APIRequestContext) {
+    this.request = request
+  }
 
   private async getCsrfToken() {
     const response = await this.request.get('/api/auth/csrf');
@@ -15,7 +20,7 @@ export class ApiHelper {
     const csrfToken = await this.getCsrfToken();
 
     // Perform login
-    const response = await this.request.post('/api/auth/callback/credentials', {
+  const response = await this.request.post('/api/auth/callback/credentials', {
       form: {
         ...credentials,
         csrfToken,
@@ -33,7 +38,7 @@ export class ApiHelper {
     }
 
     // Get session
-    await this.request.get('/api/auth/session');
+  await this.request.get('/api/auth/session');
   }
 
   async createAuthenticatedUser() {
@@ -47,7 +52,7 @@ export class ApiHelper {
   }
 
   async createBook(bookData: { title: string; description: string }) {
-    return this.request.post('/api/books', {
+  return this.request.post('/api/books', {
       data: bookData,
       headers: {
         'Content-Type': 'application/json'

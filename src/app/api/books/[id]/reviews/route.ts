@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import prisma from '@/lib/db'
-import { authOptions } from '@/lib/auth'
+import { getServerSession } from 'next-auth/next'
 import { z } from 'zod'
 import { Prisma } from '@prisma/client'
+
+import prisma from '@/lib/db'
+import { authConfig } from '@/lib/auth'
 
 // Create a validation schema for reviews
 const ReviewSchema = z.object({
@@ -18,12 +19,13 @@ const ReviewSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const reviews = await prisma.review.findMany({
       where: {
-        bookId: params.id
+        bookId: id
       },
       include: {
         user: {
@@ -54,14 +56,26 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.id) {
+  const session = await getServerSession(authConfig)
+      const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined;
+      if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    const book = await prisma.book.findUnique({ where: { id } })
+
+    if (!user || !book) {
+      return NextResponse.json(
+        { error: 'Unable to submit review because the book or user was not found' },
+        { status: 404 }
       )
     }
 
@@ -72,8 +86,8 @@ export async function POST(
       data: {
         content: validatedData.content,
         rating: validatedData.rating,
-        bookId: params.id,
-        userId: session.user.id
+        bookId: id,
+  userId: userId
       },
       include: {
         user: {
@@ -95,16 +109,27 @@ export async function POST(
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+  { error: error.issues[0].message },
         { status: 400 }
       )
     }
 
-    // Handle Prisma unique constraint violation
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('Prisma error details:', {
+        code: error.code,
+        meta: error.meta
+      })
+
       if (error.code === 'P2002') {
         return NextResponse.json(
           { error: 'You have already reviewed this book' },
+          { status: 400 }
+        )
+      }
+
+      if (error.code === 'P2003') {
+        return NextResponse.json(
+          { error: 'Unable to submit review because the book or user no longer exists' },
           { status: 400 }
         )
       }

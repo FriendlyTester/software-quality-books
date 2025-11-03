@@ -48,8 +48,6 @@ export default function ReviewForm({ bookId, onReviewAdded }: ReviewFormProps) {
     setLoading(true)
 
     try {
-      console.log('Submitting review:', { content, rating })
-      
       const res = await fetch(`/api/books/${bookId}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,8 +57,7 @@ export default function ReviewForm({ bookId, onReviewAdded }: ReviewFormProps) {
         })
       })
 
-      const data = await res.json()
-      console.log('Response:', data)
+  const data = await res.json()
 
       if (!res.ok) {
         if (res.status === 400) {
@@ -95,12 +92,10 @@ export default function ReviewForm({ bookId, onReviewAdded }: ReviewFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-      {error && (
-        <div className="bg-red-50 text-red-500 p-4 rounded-lg">
+    <form onSubmit={handleSubmit} className="space-y-4" noValidate={true}>
+      {error ? <div className="bg-red-50 text-red-500 p-4 rounded-lg">
           {error}
-        </div>
-      )}
+        </div> : null}
 
       <div>
         <label htmlFor="rating" className="block text-sm font-medium">
@@ -120,9 +115,7 @@ export default function ReviewForm({ bookId, onReviewAdded }: ReviewFormProps) {
             </option>
           ))}
         </select>
-        {validationErrors.rating && (
-          <p className="mt-1 text-sm text-red-500">{validationErrors.rating}</p>
-        )}
+        {validationErrors.rating ? <p className="mt-1 text-sm text-red-500">{validationErrors.rating}</p> : null}
       </div>
 
       <div>
@@ -138,9 +131,7 @@ export default function ReviewForm({ bookId, onReviewAdded }: ReviewFormProps) {
           className="w-full px-3 py-2 border rounded-lg"
           placeholder="Write your review here..."
         />
-        {validationErrors.content && (
-          <p className="mt-1 text-sm text-red-500">{validationErrors.content}</p>
-        )}
+        {validationErrors.content ? <p className="mt-1 text-sm text-red-500">{validationErrors.content}</p> : null}
       </div>
 
       <button

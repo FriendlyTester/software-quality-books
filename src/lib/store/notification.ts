@@ -10,6 +10,9 @@ type NotificationState = {
 export const useNotificationStore = create<NotificationState>((set) => ({
   message: null,
   type: null,
-  showNotification: (message, type) => set({ message, type }),
+  showNotification: (messageValue, typeValue) => set({
+    message: messageValue,
+    type: typeValue
+  }),
   clearNotification: () => set({ message: null, type: null })
 })) 

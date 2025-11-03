@@ -1,10 +1,11 @@
 // app/books/[id]/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Book } from '@/types/book'
 import { useSession } from 'next-auth/react'
+
+import { Book } from '@/types/book'
 import ReviewForm from '@/components/ReviewForm'
 import DeleteBookButton from '@/components/DeleteBookButton'
 
@@ -29,7 +30,8 @@ interface BookState {
   error: string | null
 }
 
-export default function BookPage({ params }: { params: { id: string } }) {
+export default function BookPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const { data: session } = useSession()
   const [state, setState] = useState<BookState>({
     book: null,
@@ -37,12 +39,14 @@ export default function BookPage({ params }: { params: { id: string } }) {
     isLoading: true,
     error: null
   })
+  // Helper to get user id safely
+  const getUserId = () => (session?.user && (session.user as { id?: string }).id) ?? undefined
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [bookRes, reviewsRes] = await Promise.all([
-        fetch(`/api/books/${params.id}`),
-        fetch(`/api/books/${params.id}/reviews`)
+        fetch(`/api/books/${id}`),
+        fetch(`/api/books/${id}/reviews`)
       ])
 
       if (!bookRes.ok) throw new Error('Failed to fetch book')
@@ -68,15 +72,15 @@ export default function BookPage({ params }: { params: { id: string } }) {
         error: errorMessage 
       }))
     }
-  }
+  }, [id])
 
   const hasUserReviewed = state.reviews.some(review => 
-    review.user?.id === session?.user?.id
+  review.user?.id === getUserId()
   )
 
   useEffect(() => {
     fetchData()
-  }, [params.id])
+  }, [fetchData])
 
   if (state.isLoading) {
     return (
@@ -105,7 +109,7 @@ export default function BookPage({ params }: { params: { id: string } }) {
     )
   }
 
-  const isOwner = session?.user?.id === state.book.userId
+  const isOwner = getUserId() === state.book?.userId
 
   return (
     <div className="container mx-auto p-4">
@@ -117,17 +121,15 @@ export default function BookPage({ params }: { params: { id: string } }) {
           >
             ← Back to Books
           </Link>
-          {isOwner && (
-            <div className="space-x-2">
+          {isOwner ? <div className="space-x-2">
               <Link
-                href={`/books/${params.id}/edit`}
+                href={`/books/${id}/edit`}
                 className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
               >
                 Edit
               </Link>
-              <DeleteBookButton bookId={params.id} />
-            </div>
-          )}
+              <DeleteBookButton bookId={id} />
+            </div> : null}
         </div>
 
         <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
@@ -147,7 +149,7 @@ export default function BookPage({ params }: { params: { id: string } }) {
               <div className="mb-8">
                 <h3 className="text-lg font-semibold mb-4">Add a Review</h3>
                 <ReviewForm 
-                  bookId={params.id} 
+                  bookId={id} 
                   onReviewAdded={fetchData}
                 />
               </div>

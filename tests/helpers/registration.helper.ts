@@ -2,7 +2,11 @@ import { RegisterPage } from '../page-objects/register-page'
 import type { TestUser } from '../data-builders/user-builder'
 
 export class RegistrationHelper {
-  constructor(private registerPage: RegisterPage) {}
+  private readonly registerPage: RegisterPage
+
+  constructor(registerPage: RegisterPage) {
+    this.registerPage = registerPage
+  }
 
   async registerNewUser(testUser: TestUser) {
     await this.registerPage.goto()
