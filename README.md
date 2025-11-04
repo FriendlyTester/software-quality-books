@@ -20,7 +20,7 @@ Before you begin, ensure you have the following installed:
 - [Git](https://git-scm.com/)
 - A code editor (we recommend [VS Code](https://code.visualstudio.com/))
 cd software-quality-books
-```
+
 
 2. Install dependencies:
 ```bash
