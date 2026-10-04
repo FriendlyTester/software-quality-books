@@ -8,8 +8,8 @@ export class NewBookPage {
 
   constructor(page: Page) {
     this.page = page
-    this.titleInput = page.getByLabel('Title')
-    this.descriptionInput = page.getByLabel('Description')
+    this.titleInput = page.getByRole('textbox', { name: 'Title', exact: true })
+    this.descriptionInput = page.getByRole('textbox', { name: 'Description', exact: true })
     this.submitButton = page.getByRole('button', { name: /Add Book|Saving.../ })
   }
 

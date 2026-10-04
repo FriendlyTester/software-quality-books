@@ -19,11 +19,12 @@ interface BookFormProps {
 export default function BookForm({ initialData, isEditing, returnUrl = '/books' }: BookFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<'title' | 'description', string>>>({})
   const showNotification = useNotificationStore(state => state.showNotification)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setLoading(true)
+    setFieldErrors({})
 
     const formData = new FormData(e.currentTarget)
     const data = {
@@ -31,8 +32,22 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
       description: formData.get('description')
     }
 
+    const result = BookSchema.safeParse(data)
+    if (!result.success) {
+      const errors: Partial<Record<'title' | 'description', string>> = {}
+      for (const issue of result.error.issues) {
+        const field = issue.path[0]
+        if (field === 'title' || field === 'description') {
+          errors[field] ??= issue.message
+        }
+      }
+      setFieldErrors(errors)
+      return
+    }
+
+    setLoading(true)
     try {
-      const validatedData = BookSchema.parse(data)
+      const validatedData = result.data
       
       const url = isEditing ? `/api/books/${initialData?.id}` : '/api/books'
       const method = isEditing ? 'PUT' : 'POST'
@@ -85,7 +100,12 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
           className="w-full px-3 py-2 border rounded-lg"
           aria-labelledby="title-label"
           aria-required="true"
+          aria-invalid={Boolean(fieldErrors.title)}
+          aria-describedby={fieldErrors.title ? 'title-error' : undefined}
         />
+        {fieldErrors.title ? <p id="title-error" role="alert" className="mt-1 text-sm text-red-500">
+          {fieldErrors.title}
+        </p> : null}
       </div>
 
       <div>
@@ -101,7 +121,12 @@ export default function BookForm({ initialData, isEditing, returnUrl = '/books' 
           className="w-full px-3 py-2 border rounded-lg"
           aria-labelledby="description-label"
           aria-required="true"
+          aria-invalid={Boolean(fieldErrors.description)}
+          aria-describedby={fieldErrors.description ? 'description-error' : undefined}
         />
+        {fieldErrors.description ? <p id="description-error" role="alert" className="mt-1 text-sm text-red-500">
+          {fieldErrors.description}
+        </p> : null}
       </div>
 
       <button
