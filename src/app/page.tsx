@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 
 import { Book } from '@/types/book'
 
@@ -12,6 +13,7 @@ interface HomeState {
 }
 
 export default function Home() {
+  const { data: session } = useSession()
   const [state, setState] = useState<HomeState>({
     books: [],
     isLoading: true,
@@ -74,12 +76,12 @@ export default function Home() {
           >
             View All Books
           </Link>
-          <Link 
+          {session ? <Link 
             href="/books/new" 
             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
           >
             Add New Book
-          </Link>
+          </Link> : null}
         </div>
       </div>
 
@@ -114,9 +116,9 @@ export default function Home() {
       {state.books.length === 0 && (
         <div className="text-center text-gray-500 mt-8">
           <p>No books found.</p>
-          <Link href="/books/new" className="text-blue-500 hover:underline">
+          {session ? <Link href="/books/new" className="text-blue-500 hover:underline">
             Add the first book
-          </Link>
+          </Link> : null}
         </div>
       )}
     </div>

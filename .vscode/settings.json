@@ -1,5 +1,8 @@
 {
   "playwright.env": {
     "PWTEST_HEADED": "1"
+  },
+  "chat.tools.terminal.autoApprove": {
+    "npm install": true
   }
 } 
