@@ -6,8 +6,9 @@ import { authConfig } from '@/lib/auth'
 
 export default async function NewBookPage() {
   const session = await getServerSession(authConfig)
+  const userId = (session?.user as { id?: string } | undefined)?.id
 
-  if (!session?.user?.id) {
+  if (!userId) {
     redirect('/login?callbackUrl=/books/new')
   }
 

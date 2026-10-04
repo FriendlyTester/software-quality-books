@@ -36,7 +36,7 @@ describe('Home book creation links', () => {
 
   it('shows creation links when signed in', async () => {
     jest.mocked(useSession).mockReturnValue({
-      data: { user: { id: 'user-1' }, expires: '2099-01-01' },
+      data: { user: { email: 'reader@example.com' }, expires: '2099-01-01' },
       status: 'authenticated',
       update: jest.fn()
     })
