@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test'
 
 import { test } from '../fixtures/homepage-fixture'
-import { UserBuilder } from '../data-builders/user-builder'
+import { PrismaUserCreator } from '../../src/lib/test-data/prisma'
 import { AuthHelper } from '../helpers/auth.helper'
 
 test.describe('Homepage', () => {
@@ -18,7 +18,7 @@ test.describe('Homepage', () => {
     await expect(addBookButton).toBeVisible()
 
     // Cleanup
-    await UserBuilder.delete(testUser.email)
+    await new PrismaUserCreator().delete(testUser.email)
   })
 
   test('should navigate to login page when clicking Sign In button', async ({ homePage }) => {

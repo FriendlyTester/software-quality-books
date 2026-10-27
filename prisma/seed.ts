@@ -17,6 +17,7 @@ async function main() {
     data: {
       email: 'test@test.com',
       password: hashedPassword,
+      role: 'ADMIN',
       profile: {
         create: {
           name: 'Alice Johnson',

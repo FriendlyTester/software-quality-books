@@ -1,7 +1,8 @@
 import { expect } from '@playwright/test'
 
 import { test } from '../fixtures/login-fixture'
-import { UserBuilder } from '../data-builders/user-builder'
+import { UserBuilder } from '../../src/lib/test-data'
+import { PrismaUserCreator } from '../../src/lib/test-data/prisma'
 
 test.describe('Login Validation', () => {
 
@@ -28,7 +29,7 @@ test.describe('Login Validation', () => {
   
   test('should successfully login with valid credentials', async ({ loginPage }) => {
     // Create a test user directly in the database
-    const testUser = await new UserBuilder().create();
+    const testUser = await new PrismaUserCreator().create(UserBuilder.aUser().build());
 
     // Perform login
     await loginPage.goto();
@@ -39,6 +40,6 @@ test.describe('Login Validation', () => {
     // Verify redirect to books page
     await expect(loginPage.page).toHaveURL('/books');
 
-    await UserBuilder.delete(testUser.email);
+    await new PrismaUserCreator().delete(testUser.email);
   })
 }) 

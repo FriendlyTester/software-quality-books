@@ -1,21 +1,22 @@
 import { expect } from '@playwright/test'
 
 import { test } from '../fixtures/new-book-fixture'
-import { UserBuilder } from '../data-builders/user-builder'
+import { UserBuilder } from '../../src/lib/test-data'
+import { PrismaUserCreator, type CreatedUser } from '../../src/lib/test-data/prisma'
 
 test.describe('New Book Validation', () => {
-  let testUser: Awaited<ReturnType<UserBuilder['create']>>
+  let testUser: CreatedUser
 
   test.beforeEach(async ({ authHelper }) => {
     // Create and login a test user
-    testUser = await new UserBuilder().create()
+    testUser = await new PrismaUserCreator().create(UserBuilder.aUser().build())
     await authHelper.loginUser(testUser)
   })
 
   test.afterEach(async () => {
     // Only attempt cleanup if we have a test user
     if (testUser?.email) {
-      await UserBuilder.delete(testUser.email)
+      await new PrismaUserCreator().delete(testUser.email)
     }
   })
 
@@ -42,7 +43,7 @@ test.describe('New Book Validation', () => {
     await newBookPage.goto()
     const longDescription = 'a'.repeat(751)
     await newBookPage.createBook('Valid title', longDescription)
-    await expect(newBookPage.page.getByText('Description must be less than 500 characters')).toBeVisible()
+    await expect(newBookPage.page.getByText('Description must be less than 750 characters')).toBeVisible()
   })
 
   test('should show both errors when title and description are empty', async ({ newBookPage }) => {

@@ -5,10 +5,10 @@ import { redirect } from 'next/navigation'
 import NewBookPage from '@/app/books/new/page'
 import { authConfig } from '@/lib/auth'
 
-jest.mock('next-auth/next', () => ({ getServerSession: jest.fn() }))
-jest.mock('next/navigation', () => ({ redirect: jest.fn() }))
-jest.mock('@/lib/auth', () => ({ authConfig: {} }))
-jest.mock('@/components/BookForm', () => ({
+vi.mock('next-auth/next', () => ({ getServerSession: vi.fn() }))
+vi.mock('next/navigation', () => ({ redirect: vi.fn() }))
+vi.mock('@/lib/auth', () => ({ authConfig: {} }))
+vi.mock('@/components/BookForm', () => ({
   __esModule: true,
   default: function MockBookForm() {
     return <form aria-label="Add Book Form" />
@@ -17,14 +17,14 @@ jest.mock('@/components/BookForm', () => ({
 
 describe('NewBookPage authentication', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.mocked(redirect).mockImplementation(() => {
+    vi.clearAllMocks()
+    vi.mocked(redirect).mockImplementation(() => {
       throw new Error('NEXT_REDIRECT')
     })
   })
 
   it('redirects signed-out visitors to login with a return URL', async () => {
-    jest.mocked(getServerSession).mockResolvedValue(null)
+    vi.mocked(getServerSession).mockResolvedValue(null)
 
     await expect(NewBookPage()).rejects.toThrow('NEXT_REDIRECT')
 
@@ -33,7 +33,7 @@ describe('NewBookPage authentication', () => {
   })
 
   it('renders the book form for signed-in visitors', async () => {
-    jest.mocked(getServerSession).mockResolvedValue({ user: { id: 'user-1' } })
+    vi.mocked(getServerSession).mockResolvedValue({ user: { id: 'user-1' } })
 
     render(await NewBookPage())
 

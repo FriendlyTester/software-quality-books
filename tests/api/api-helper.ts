@@ -1,6 +1,7 @@
 import { APIRequestContext } from '@playwright/test';
 
-import { UserBuilder } from '../data-builders/user-builder';
+import { UserBuilder } from '../../src/lib/test-data';
+import { PrismaUserCreator } from '../../src/lib/test-data/prisma';
 
 export class ApiHelper {
   private readonly request: APIRequestContext
@@ -42,7 +43,7 @@ export class ApiHelper {
   }
 
   async createAuthenticatedUser() {
-    const testUser = await new UserBuilder().create();
+    const testUser = await new PrismaUserCreator().create(UserBuilder.aUser().build());
     await this.login({
       email: testUser.email,
       password: testUser.password
@@ -62,5 +63,22 @@ export class ApiHelper {
 
   async getBooks() {
     return this.request.get('/api/books');
+  }
+
+  async createApiKey(name: string) {
+    return this.request.post('/api/api-keys', {
+      data: { name },
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+
+  async listApiKeys() {
+    return this.request.get('/api/api-keys');
+  }
+
+  async revokeApiKey(id: string) {
+    return this.request.delete(`/api/api-keys/${id}`);
   }
 }

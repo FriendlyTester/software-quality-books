@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-import { UserBuilder } from '../data-builders/user-builder'
+import { PrismaUserCreator } from '../../src/lib/test-data/prisma'
 
 import { ApiHelper } from './api-helper'
 
@@ -29,7 +29,7 @@ test.describe('Books API', () => {
     expect(addedBook.description).toBe(newBook.description)
 
     // Cleanup
-    await UserBuilder.delete(testUser.email)
+    await new PrismaUserCreator().delete(testUser.email)
   })
 
   test('should return 401 when creating book without auth', async () => {

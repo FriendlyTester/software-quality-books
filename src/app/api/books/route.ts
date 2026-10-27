@@ -1,10 +1,9 @@
 // app/api/books/route.ts
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
 import { ZodError } from 'zod'
 
 import prisma from '@/lib/db'
-import { authConfig } from '@/lib/auth'
+import { getRequestUser } from '@/lib/authz'
 import { BookSchema } from '@/lib/validations/book'
 
 export const dynamic = 'force-dynamic'
@@ -27,9 +26,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authConfig)
-
-  const userId = (session?.user && (session.user as { id?: string }).id) ?? undefined;
+  // Accepts either a session cookie or an API key (Authorization: Bearer sqb_...)
+  const user = await getRequestUser(request)
+  const userId = user?.id
   if (!userId) {
     return NextResponse.json(
       { error: 'Unauthorized' },

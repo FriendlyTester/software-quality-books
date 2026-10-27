@@ -1,9 +1,8 @@
 // Removed deprecated next-auth/jwt encode import
 import { Page } from '@playwright/test'
 
-import { UserBuilder } from '../data-builders/user-builder'
-
-type BuiltUser = Awaited<ReturnType<UserBuilder['create']>>
+import { UserBuilder } from '../../src/lib/test-data'
+import { PrismaUserCreator, type CreatedUser } from '../../src/lib/test-data/prisma'
 
 export class AuthHelper {
   private readonly page: Page
@@ -12,8 +11,8 @@ export class AuthHelper {
     this.page = page
   }
 
-  async loginUser(user?: BuiltUser) {
-    const testUser = user ?? await new UserBuilder().create()
+  async loginUser(user?: CreatedUser) {
+    const testUser = user ?? await new PrismaUserCreator().create(UserBuilder.aUser().build())
 
     // Start with a clean auth state to avoid leaking sessions between tests
   await this.page.context().clearCookies()

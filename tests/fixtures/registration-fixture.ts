@@ -1,7 +1,7 @@
 import { test as base } from '@playwright/test'
 
 import { RegisterPage } from '../page-objects/register-page'
-import { UserBuilder } from '../data-builders/user-builder'
+import { UserBuilder } from '../../src/lib/test-data'
 import { RegistrationHelper } from '../helpers/registration.helper'
 
 type Pages = {

@@ -3,13 +3,13 @@ import { useSession } from 'next-auth/react'
 
 import Home from '@/app/page'
 
-jest.mock('next-auth/react', () => ({ useSession: jest.fn() }))
+vi.mock('next-auth/react', () => ({ useSession: vi.fn() }))
 
 describe('Home book creation links', () => {
   const originalFetch = global.fetch
 
   beforeEach(() => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => []
     })
@@ -17,13 +17,13 @@ describe('Home book creation links', () => {
 
   afterEach(() => {
     global.fetch = originalFetch
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it.each(['unauthenticated', 'loading'] as const)(
     'hides creation links when the session is %s',
     async (status) => {
-      jest.mocked(useSession).mockReturnValue({ data: null, status, update: jest.fn() })
+      vi.mocked(useSession).mockReturnValue({ data: null, status, update: vi.fn() })
 
       render(<Home />)
 
@@ -35,10 +35,10 @@ describe('Home book creation links', () => {
   )
 
   it('shows creation links when signed in', async () => {
-    jest.mocked(useSession).mockReturnValue({
+    vi.mocked(useSession).mockReturnValue({
       data: { user: { email: 'reader@example.com' }, expires: '2099-01-01' },
       status: 'authenticated',
-      update: jest.fn()
+      update: vi.fn()
     })
 
     render(<Home />)

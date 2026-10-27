@@ -1,7 +1,7 @@
 import { test as base } from '@playwright/test'
 
 import { BookPage } from '../page-objects/book-page'
-import { BookBuilder } from '../data-builders/book-builder'
+import { BookBuilder } from '../../src/lib/test-data'
 
 type BookPageFixtures = {
   bookPage: BookPage

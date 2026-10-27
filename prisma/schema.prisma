@@ -54,8 +54,29 @@ model User {
   profile       Profile?  // One-to-one relation
   accounts      Account[]
   sessions      Session[]
+  apiKeys       ApiKey[]
+  role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  prefix     String    // Leading characters of the key, safe to display
+  hashedKey  String    @unique // SHA-256 of the full key; the plaintext is never stored
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+
+  @@index([userId])
 }
 
 model Profile {

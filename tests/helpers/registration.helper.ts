@@ -1,5 +1,5 @@
 import { RegisterPage } from '../page-objects/register-page'
-import type { TestUser } from '../data-builders/user-builder'
+import type { UserModel } from '../../src/lib/test-data'
 
 export class RegistrationHelper {
   private readonly registerPage: RegisterPage
@@ -8,7 +8,7 @@ export class RegistrationHelper {
     this.registerPage = registerPage
   }
 
-  async registerNewUser(testUser: TestUser) {
+  async registerNewUser(testUser: UserModel) {
     await this.registerPage.goto()
     await this.registerPage.fillEmail(testUser.email)
     await this.registerPage.fillPassword(testUser.password)

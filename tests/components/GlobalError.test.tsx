@@ -2,8 +2,6 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 import GlobalError from '@/app/global-error'
 
-jest.mock('react-dom/server', () => jest.requireActual('react-dom/server.node'))
-
 describe('GlobalError', () => {
   const error = Object.assign(new Error('Sensitive database connection details'), {
     digest: 'internal-error-digest'

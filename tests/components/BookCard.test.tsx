@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals'
 import { render, screen } from '@testing-library/react'
 import { faker } from '@faker-js/faker'
 
@@ -6,12 +5,12 @@ import { BookCard } from '@/components/BookCard'
 import { generateTestId, TEST_DATA_IDS } from '@/utils/idHelpers'
 
 // Mock Next.js Link component
-jest.mock('next/link', () => {
+vi.mock('next/link', () => {
   const MockLink = ({ children, href }: { children: React.ReactNode; href: string }) => (
     <a href={href}>{children}</a>
   )
   MockLink.displayName = 'MockNextLink'
-  return MockLink
+  return { default: MockLink }
 })
 
 describe('BookCard', () => {

@@ -4,17 +4,17 @@ import { useRouter } from 'next/navigation'
 import BookForm from '@/components/BookForm'
 import { useNotificationStore } from '@/lib/store/notification'
 
-jest.mock('next/navigation', () => ({ useRouter: jest.fn() }))
+vi.mock('next/navigation', () => ({ useRouter: vi.fn() }))
 
 describe('BookForm validation', () => {
   const originalFetch = global.fetch
-  const push = jest.fn()
-  const refresh = jest.fn()
+  const push = vi.fn()
+  const refresh = vi.fn()
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.mocked(useRouter).mockReturnValue({ push, refresh } as unknown as ReturnType<typeof useRouter>)
-    global.fetch = jest.fn().mockResolvedValue({ ok: true })
+    vi.clearAllMocks()
+    vi.mocked(useRouter).mockReturnValue({ push, refresh } as unknown as ReturnType<typeof useRouter>)
+    global.fetch = vi.fn().mockResolvedValue({ ok: true })
     useNotificationStore.setState({ message: null, type: null })
   })
 
@@ -69,7 +69,7 @@ describe('BookForm validation', () => {
   })
 
   it('keeps API errors in the notification flow', async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    global.fetch = vi.fn().mockResolvedValue({
       ok: false,
       json: async () => ({ error: 'Failed to save book' })
     })

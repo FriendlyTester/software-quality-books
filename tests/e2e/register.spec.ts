@@ -1,4 +1,4 @@
-import { UserBuilder } from '../data-builders/user-builder'
+import { PrismaUserCreator } from '../../src/lib/test-data/prisma'
 import { test, expect } from '../fixtures/registration-fixture'
 
 test.describe('Registration', () => {
@@ -14,7 +14,7 @@ test.describe('Registration', () => {
     await expect(registerPage.page).toHaveURL('/login')
 
     await test.step('cleanup', async () => {
-      await UserBuilder.delete(testUser.email)
+      await new PrismaUserCreator().delete(testUser.email)
     })
   }),
 

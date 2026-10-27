@@ -2,7 +2,7 @@ import { test as base } from '@playwright/test'
 
 import { NewBookPage } from '../page-objects/new-book-page'
 import { AuthHelper } from '../helpers/auth.helper'
-import { UserBuilder } from '../data-builders/user-builder'
+import { UserBuilder } from '../../src/lib/test-data'
 
 type NewBookFixtures = {
   newBookPage: NewBookPage

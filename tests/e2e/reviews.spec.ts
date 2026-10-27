@@ -1,32 +1,26 @@
 import { expect } from '@playwright/test'
-import { Book } from '@prisma/client'
 
 import { test } from '../fixtures/review-fixture'
-import { UserBuilder } from '../data-builders/user-builder'
-import { BookBuilder } from '../data-builders/book-builder'
+import { UserBuilder } from '../../src/lib/test-data'
+import { PrismaBookCreator, PrismaUserCreator, type PrismaBook } from '../../src/lib/test-data/prisma'
 
 
 test.describe('Book Reviews', () => {
   test.describe.configure({ mode: 'serial' })
   
-  let testBook: Book & { 
-    user: { 
-      id: string
-      email: string
-      password: string
-      createdAt: Date
-      updatedAt: Date
-    } | null 
-  }
+  const userCreator = new PrismaUserCreator()
+  const bookCreator = new PrismaBookCreator()
+  let testBook: PrismaBook
 
   test.beforeAll(async ({ bookBuilder }) => {
-    testBook = await bookBuilder.create()
+    const owner = await userCreator.create(UserBuilder.aUser().build())
+    testBook = await bookCreator.create(bookBuilder.withUserId(owner.id).build())
   })
 
   test.afterAll(async () => {
-    await BookBuilder.delete(testBook.id)
+    await bookCreator.delete(testBook.id)
     if (testBook.user?.email) {
-      await UserBuilder.delete(testBook.user.email)
+      await userCreator.delete(testBook.user.email)
     }
   })
 
@@ -63,7 +57,7 @@ test.describe('Book Reviews', () => {
     
     
     // Cleanup
-    await UserBuilder.delete(testUser.email)
+    await userCreator.delete(testUser.email)
   })
 
   test('should hide review form after submitting a review', async ({ reviewPage, authHelper }) => {
@@ -79,7 +73,7 @@ test.describe('Book Reviews', () => {
     await expect(reviewPage.page.getByText('You have already reviewed this book')).toBeVisible()
     
     // Cleanup
-    await UserBuilder.delete(testUser.email)
+    await userCreator.delete(testUser.email)
   })
 
   test('should show already reviewed message when revisiting page', async ({ reviewPage, authHelper }) => {
@@ -98,6 +92,6 @@ test.describe('Book Reviews', () => {
     await expect(reviewPage.page.getByText('You have already reviewed this book')).toBeVisible()
     
     // Cleanup
-    await UserBuilder.delete(testUser.email)
+    await userCreator.delete(testUser.email)
   })
 })
